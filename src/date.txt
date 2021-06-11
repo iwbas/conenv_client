@@ -1,0 +1,5 @@
+const nDate = new Date().toLocaleString('en-US', {
+  timeZone: 'Asia/Calcutta'
+});
+
+console.log(nDate);
