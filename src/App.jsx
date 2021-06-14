@@ -1,15 +1,37 @@
 import "./App.css";
-import { Admin, ListGuesser, Resource } from "react-admin";
+import {
+  Admin,
+  EditGuesser,
+  ListGuesser,
+  Resource,
+  usePermissions,
+} from "react-admin";
 // import simpleRestProvider from "ra-data-simple-rest";
 import customDataProvider from "./providers/dataProvider";
+import customAuthProvider from "./providers/authProvider";
+import { UserList } from "./components/users";
+import { GroupList, GroupEdit, GroupCreate } from "./components/groups";
 
-const dataProvider = customDataProvider("http://localhost:8080/api");
+const dataProvider = customDataProvider("/api");
+const authProvider = customAuthProvider("/api");
 
-const App = () => (
-  <Admin dataProvider={dataProvider}>
-    <Resource name="users" list={ListGuesser} />
-    <Resource name="roles" list={ListGuesser} />
-  </Admin>
-);
+console.log(authProvider);
+
+const App = () => {
+  return (
+    <Admin authProvider={authProvider} dataProvider={dataProvider}>
+      {(permissions) => [
+        <Resource name="users" list={UserList} />,
+        <Resource name="roles" list={ListGuesser} edit={EditGuesser} />,
+        <Resource
+          name="groups"
+          list={GroupList}
+          edit={GroupEdit}
+          create={GroupCreate}
+        />,
+      ]}
+    </Admin>
+  );
+};
 
 export default App;
