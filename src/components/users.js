@@ -17,8 +17,12 @@ import {
   ChipField,
   ReferenceArrayInput,
   SelectArrayInput,
-  PasswordInput
-} from "react-admin";
+  PasswordInput,
+  Toolbar,
+  SaveButton,
+  DeleteButton,
+  required,
+} from 'react-admin';
 
 export const UserList = (props) => (
   <List {...props}>
@@ -44,59 +48,99 @@ export const UserList = (props) => (
   </List>
 );
 
-export const UserEdit = (props) => (
-  <Edit {...props}>
-    <SimpleForm>
+const UserEditToolbar = (props) => (
+  <Toolbar {...props}>
+    <SaveButton disabled={props.pristine} />
+    <DeleteButton />
+  </Toolbar>
+);
+
+const UserEditForm = (props) => {
+  var auth = JSON.parse(localStorage.getItem('auth'));
+  var userId = auth?.id;
+  var userRole = auth?.role;
+  var isDisabled = userId !== props.record.creatorId && userRole !== 'admin';
+
+  return (
+    <SimpleForm toolbar={isDisabled ? null : <UserEditToolbar />} {...props}>
       <TextInput disabled source="id" />
-      <TextInput source="username" />
-      <TextInput source="email" />
-      <TextInput source="password" />
-      <TextInput source="name" />
-      <TextInput source="surname" />
-      <TextInput source="patronymic" />
-      <ReferenceInput source="creatorId" reference="users">
+      <TextInput disabled={isDisabled} source="username" />
+      <TextInput disabled={isDisabled} source="email" />
+      <TextInput disabled={isDisabled} source="password" />
+      <TextInput disabled={isDisabled} source="name" />
+      <TextInput disabled={isDisabled} source="surname" />
+      <TextInput disabled={isDisabled} source="patronymic" />
+      <ReferenceInput
+        disabled={isDisabled}
+        source="creatorId"
+        reference="users"
+      >
         <SelectInput optionText="name" />
       </ReferenceInput>
-      <ReferenceInput source="roleId" reference="roles">
+      <ReferenceInput disabled={userRole !== 'admin'} source="roleId" reference="roles">
         <SelectInput optionText="name" />
       </ReferenceInput>
-      <ReferenceArrayInput reference="groups" source="groups">
+      <ReferenceArrayInput
+        disabled={isDisabled}
+        source="groups"
+        reference="groups"
+      >
         <SelectArrayInput>
           <ChipField source="name" />
         </SelectArrayInput>
       </ReferenceArrayInput>
     </SimpleForm>
-  </Edit>
-);
+  );
+};
 
-const choices = [
+export const UserEdit = (props) => {
+  return (
+    <Edit {...props}>
+      <UserEditForm />
+    </Edit>
+  );
+};
+
+var choices = [
   {
     id: 1,
-    name: "Пользователь",
+    name: 'user',
+    disabled: false,
   },
   {
     id: 2,
-    name: "Преподаватель",
+    name: 'teacher',
+    disabled: false,
   },
-];
+]
 
-export const UserCreate = (props) => (
-  <Create {...props}>
-    <SimpleForm>
-      <TextInput label="Логин" source="username" required />
-      <TextInput label="Электронная почта" source="email" required />
-      <PasswordInput label="Пароль" source="password" required />
-      <TextInput label="Имя" source="name" required />
-      <TextInput label="Фамилия" source="surname" required />
+const UserCreateForm = (props) => {
+  var auth = JSON.parse(localStorage.getItem('auth'));
+  var userRole = auth?.role;
+
+  var isAdmin = userRole === 'admin'
+
+  if (!isAdmin) choices[1].disabled = true;
+
+  return (
+    <SimpleForm {...props}>
+      <TextInput label="Логин" source="username" validate={[required()]} />
+      <TextInput
+        label="Электронная почта"
+        source="email"
+        validate={[required()]}
+      />
+      <PasswordInput label="Пароль" source="password" validate={[required()]} />
+      <TextInput label="Имя" source="name" validate={[required()]} />
+      <TextInput label="Фамилия" source="surname" validate={[required()]} />
       <TextInput label="Отчество" source="patronymic" />
-      {/* <ReferenceInput label="Роль" source="roleId" reference="roles" required> */}
-      {/* <SelectInput optionText="name" /> */}
-      {/* </ReferenceInput> */}
       <SelectInput
         source="roleId"
         choices={choices}
         optionText="name"
         optionValue="id"
+        initialValue="1"
+        disabled={!isAdmin}
       />
       <ReferenceArrayInput label="Группы" source="groups" reference="groups">
         <SelectArrayInput>
@@ -104,5 +148,11 @@ export const UserCreate = (props) => (
         </SelectArrayInput>
       </ReferenceArrayInput>
     </SimpleForm>
+  );
+};
+
+export const UserCreate = (props) => (
+  <Create {...props}>
+    <UserCreateForm />
   </Create>
 );
