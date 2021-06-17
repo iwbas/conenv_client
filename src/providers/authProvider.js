@@ -28,7 +28,7 @@ const authProvider = (httpClient = fetchUtils.fetchJson) => ({
   },
   checkError: (error) => {
     const status = error.status;
-    if (status === 401 || status === 403) {
+    if (status === 401 /* || status === 403 */) {
       // localStorage.removeItem("auth");
       return Promise.reject();
     }

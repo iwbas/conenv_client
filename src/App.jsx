@@ -9,7 +9,7 @@ import {
 // import simpleRestProvider from "ra-data-simple-rest";
 import customDataProvider from "./providers/dataProvider";
 import customAuthProvider from "./providers/authProvider";
-import { UserList } from "./components/users";
+import { UserList, UserEdit, UserCreate } from "./components/users";
 import { GroupList, GroupEdit, GroupCreate } from "./components/groups";
 
 const dataProvider = customDataProvider("/api");
@@ -19,10 +19,21 @@ console.log(authProvider);
 
 const App = () => {
   return (
-    <Admin authProvider={authProvider} dataProvider={dataProvider}>
-      {(permissions) => [
-        <Resource name="users" list={UserList} />,
-        <Resource name="roles" list={ListGuesser} edit={EditGuesser} />,
+    <Admin
+      title="ConEnv"
+      authProvider={authProvider}
+      dataProvider={dataProvider}
+    >
+      {(permission) => [
+        <Resource
+          name="users"
+          list={permission !== "user" ? UserList : null}
+          edit={UserEdit}
+          create={UserCreate}
+        />,
+        permission !== "user" ? (
+          <Resource name="roles" list={ListGuesser} />
+        ) : null,
         <Resource
           name="groups"
           list={GroupList}
