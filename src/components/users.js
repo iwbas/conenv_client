@@ -22,7 +22,7 @@ import {
   SaveButton,
   DeleteButton,
   required,
-} from 'react-admin';
+} from "react-admin";
 
 export const UserList = (props) => (
   <List {...props}>
@@ -48,189 +48,155 @@ export const UserList = (props) => (
   </List>
 );
 
-// export const UserEdit = (props) => {
-//   var auth = JSON.parse(localStorage.getItem("auth"));
-//   var userRole = auth?.role;
+const UserTitle = ({ record }) => {
+  return <span>Пользователь {record ? `${record.username}` : ""}</span>;
+};
 
-//   return (
-//     <Edit {...props}>
-//       <SimpleForm>
-//         <TextInput disabled source="id" />
-//         <TextInput source="username" />
-//         <TextInput source="email" />
-//         <TextInput source="password" />
-//         <TextInput source="name" />
-//         <TextInput source="surname" />
-//         <TextInput source="patronymic" />
-//         <ReferenceInput source="creatorId" reference="users">
-//           <SelectInput optionText="name" />
-//         </ReferenceInput>
-//         <ReferenceInput source="roleId" reference="roles">
-//           <SelectInput optionText="name" />
-//         </ReferenceInput>
-//         <ReferenceArrayInput reference="groups" source="groups">
-//           <SelectArrayInput>
-//             <ChipField source="name" />
-//           </SelectArrayInput>
-//         </ReferenceArrayInput>
-//       </SimpleForm>
-//     </Edit>);
-// const UserEditToolbar = (props) => (
-//   <Toolbar {...props}>
-//     <SaveButton disabled={props.pristine} />
-//     <DeleteButton />
-//   </Toolbar>
-// );
+export const UserEdit = (props) => {
+  // var auth = JSON.parse(localStorage.getItem("auth"));
+  // var userRole = auth?.role;
 
-// const UserEditForm = (props) => {
-//   var auth = JSON.parse(localStorage.getItem('auth'));
-//   var userId = auth?.id;
-//   var userRole = auth?.role;
-//   var isDisabled = userId !== props.record.creatorId && userRole !== 'admin';
+  return (
+    <Edit title={<UserTitle />} {...props}>
+      <UserEditForm />
+    </Edit>
+  );
+};
 
-//   return (
-//     <SimpleForm toolbar={isDisabled ? null : <UserEditToolbar />} {...props}>
-//       <TextInput disabled source="id" />
-//       <TextInput disabled={isDisabled} source="username" />
-//       <TextInput disabled={isDisabled} source="email" />
-//       <TextInput disabled={isDisabled} source="password" />
-//       <TextInput disabled={isDisabled} source="name" />
-//       <TextInput disabled={isDisabled} source="surname" />
-//       <TextInput disabled={isDisabled} source="patronymic" />
-//       <ReferenceInput
-//         disabled={isDisabled}
-//         source="creatorId"
-//         reference="users"
-//       >
-//         <SelectInput optionText="name" />
-//       </ReferenceInput>
-//       <ReferenceInput disabled={userRole !== 'admin'} source="roleId" reference="roles">
-//         <SelectInput optionText="name" />
-//       </ReferenceInput>
-//       <ReferenceArrayInput
-//         disabled={isDisabled}
-//         source="groups"
-//         reference="groups"
-//       >
-//         <SelectArrayInput>
-//           <ChipField source="name" />
-//         </SelectArrayInput>
-//       </ReferenceArrayInput>
-//     </SimpleForm>
-//   );
-// };
+const UserEditToolbar = (props) => (
+  <Toolbar {...props}>
+    <SaveButton disabled={props.pristine} />
+    <DeleteButton disabled={props.record.id === 1} />
+  </Toolbar>
+);
 
-// export const UserEdit = (props) => {
-//   return (
-//     <Edit {...props}>
-//       <UserEditForm />
-//     </Edit>
-//   );
-// };
+const UserEditForm = (props) => {
+  var auth = JSON.parse(localStorage.getItem("auth"));
+  var userId = auth?.id;
+  var userRole = auth?.role;
 
-// var choices = [
-//   {
-//     id: 1,
-//     name: "Пользователь",
-//     disabled: true,
-//   },
-//   {
-//     id: 2,
-//     name: "Преподаватель",
-//     disabled: true,
-//     name: 'user',
-//     disabled: false,
-//   },
-//   {
-//     id: 2,
-//     name: 'teacher',
-//     disabled: false,
-//   },
-// ]
+  // Поле disabled если Преподаватель не ответственный за пользователя и если он не админ
+  // Поле также disabled для самой учетной записи администратора
+  var NotCreatorOrAdmin = props.record.creatorId !== userId && userRole !== "admin";
 
-// export const UserCreate = (props) => {
-//   var auth = JSON.parse(localStorage.getItem("auth"));
-//   var userRole = auth?.role;
-//   var initialValue;
+  console.log(props.record.id);
+  var isDisabled = NotCreatorOrAdmin || props.record.id === 1;
 
-//   if (userRole === "admin") {
-//     initialValue = 2;
-//     choices[1].disabled = false;
-//   } else if (userRole === "teacher") {
-//     initialValue = 1;
-//     choices[0].disabled = false;
-//   }
+  return (
+    <SimpleForm
+      toolbar={NotCreatorOrAdmin ? null : <UserEditToolbar />}
+      {...props}
+    >
+      <TextInput disabled={isDisabled} source="username" label="Логин" />
+      <TextInput
+        disabled={isDisabled}
+        source="email"
+        label="Электронная почта"
+      />
+      <TextInput
+        disabled={NotCreatorOrAdmin}
+        source="password"
+        label="Новый пароль"
+      />
+      <TextInput disabled={isDisabled} source="name" label="Имя" />
+      <TextInput disabled={isDisabled} source="surname" label="Фамилия" />
+      <TextInput disabled={isDisabled} source="patronymic" label="Отчество" />
+      <ReferenceInput
+        disabled={isDisabled}
+        source="creatorId"
+        reference="users"
+        label="Ответственный"
+      >
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <ReferenceInput
+        disabled
+        source="roleId"
+        reference="roles"
+        label="Роль"
+      >
+        <SelectInput optionText="name" />
+      </ReferenceInput>
+      <ReferenceArrayInput
+        disabled={isDisabled}
+        reference="groups"
+        source="groups"
+        label="Группа"
+      >
+        <SelectArrayInput>
+          <ChipField source="name" />
+        </SelectArrayInput>
+      </ReferenceArrayInput>
+    </SimpleForm>
+  );
+};
 
-//   return (
-//     <Create {...props}>
-//       <SimpleForm>
-//         <TextInput label="Логин" source="username" required />
-//         <TextInput label="Электронная почта" source="email" required />
-//         <PasswordInput label="Пароль" source="password" required />
-//         <TextInput label="Имя" source="name" required />
-//         <TextInput label="Фамилия" source="surname" required />
-//         <TextInput label="Отчество" source="patronymic" />
-//         <SelectInput
-//           source="roleId"
-//           choices={choices}
-//           optionText="name"
-//           optionValue="id"
-//           initialValue={initialValue}
-//         />
-//         {userRole === "teacher" ? (
-//           <ReferenceArrayInput
-//             label="Группы"
-//             source="groups"
-//             reference="groups"
-//           >
-//             <SelectArrayInput>
-//               <ChipField source="name" />
-//             </SelectArrayInput>
-//           </ReferenceArrayInput>
-//         ) : null}
-//       </SimpleForm>
-//     </Create>
-//   );
-// };
-// const UserCreateForm = (props) => {
-//   var auth = JSON.parse(localStorage.getItem('auth'));
-//   var userRole = auth?.role;
+var choices = [
+  {
+    id: 1,
+    name: "Пользователь",
+    disabled: true,
+  },
+  {
+    id: 2,
+    name: "Преподаватель",
+    disabled: true,
+  },
+];
 
-//   var isAdmin = userRole === 'admin'
+export const UserCreate = (props) => {
+  var auth = JSON.parse(localStorage.getItem("auth"));
+  var userRole = auth?.role;
+  var initialValue;
+  var userType;
 
-//   if (!isAdmin) choices[1].disabled = true;
+  if (userRole === "admin") {
+    initialValue = 2;
+    choices[1].disabled = false;
+    userType = choices[1].name;
+  } else if (userRole === "teacher") {
+    initialValue = 1;
+    choices[0].disabled = false;
+    userType = choices[0].name;
+  }
 
-//   return (
-//     <SimpleForm {...props}>
-//       <TextInput label="Логин" source="username" validate={[required()]} />
-//       <TextInput
-//         label="Электронная почта"
-//         source="email"
-//         validate={[required()]}
-//       />
-//       <PasswordInput label="Пароль" source="password" validate={[required()]} />
-//       <TextInput label="Имя" source="name" validate={[required()]} />
-//       <TextInput label="Фамилия" source="surname" validate={[required()]} />
-//       <TextInput label="Отчество" source="patronymic" />
-//       <SelectInput
-//         source="roleId"
-//         choices={choices}
-//         optionText="name"
-//         optionValue="id"
-//         initialValue="1"
-//         disabled={!isAdmin}
-//       />
-//       <ReferenceArrayInput label="Группы" source="groups" reference="groups">
-//         <SelectArrayInput>
-//           <ChipField source="name" />
-//         </SelectArrayInput>
-//       </ReferenceArrayInput>
-//     </SimpleForm>
-//   );
-// };
-
-// export const UserCreate = (props) => (
-//   <Create {...props}>
-//     <UserCreateForm />
-//   </Create>
-// );
+  return (
+    <Create
+      title={
+        "Создание " + (userRole === "admin" ? "преподавателя" : "пользователя")
+      }
+      {...props}
+    >
+      <SimpleForm>
+        <TextInput label="Логин" source="username" validate={required()} />
+        <TextInput
+          label="Электронная почта"
+          source="email"
+          validate={required()}
+        />
+        <PasswordInput label="Пароль" source="password" validate={required()} />
+        <TextInput label="Имя" source="name" validate={required()} />
+        <TextInput label="Фамилия" source="surname" validate={required()} />
+        <TextInput label="Отчество" source="patronymic" />
+        <SelectInput
+          source="roleId"
+          choices={choices}
+          optionText="name"
+          optionValue="id"
+          initialValue={initialValue}
+        />
+        {userRole === "teacher" ? (
+          <ReferenceArrayInput
+            label="Группы"
+            source="groups"
+            reference="groups"
+          >
+            <SelectArrayInput>
+              <ChipField source="name" />
+            </SelectArrayInput>
+          </ReferenceArrayInput>
+        ) : null}
+      </SimpleForm>
+    </Create>
+  );
+};
