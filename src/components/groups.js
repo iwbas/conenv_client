@@ -13,7 +13,7 @@ import {
   ReferenceInput,
   SelectInput,
   required,
-} from "react-admin";
+} from 'react-admin';
 
 export const GroupList = (props) => {
   console.log(props);
@@ -30,33 +30,21 @@ export const GroupList = (props) => {
   );
 };
 
-const GroupEditToolbar = (props) => {
-  // problem with Received `true` for a non-boolean attribute
-  // and React does not recognize the `isDisabled` prop on a DOM element.
-  // temporary
-  var auth = JSON.parse(localStorage.getItem("auth"));
-  var userId = auth?.id;
-  var userRole = auth?.role;
-  var isDisabled = userId !== props.record.ownerId && userRole !== "admin";
+const GroupEditToolbar = (props) => (
+  <Toolbar {...props}>
+    <SaveButton disabled={props.pristine} />
+    <DeleteButton />
+  </Toolbar>
+);
 
-  console.log("ISDISABLED");
-  console.log(props.isDisabled);
-
-  return (
-    <Toolbar {...props}>
-      <SaveButton disabled={props.pristine} />
-      <DeleteButton disabled={isDisabled} />
-    </Toolbar>
-  );
-};
 const GroupEditForm = (props) => {
-  var auth = JSON.parse(localStorage.getItem("auth"));
+  var auth = JSON.parse(localStorage.getItem('auth'));
   var userId = auth?.id;
   var userRole = auth?.role;
-  var isDisabled = userId !== props.record.ownerId && userRole !== "admin";
+  var isDisabled = userId !== props.record.ownerId && userRole !== 'admin';
 
   return (
-    <SimpleForm toolbar={<GroupEditToolbar/>} {...props}>
+    <SimpleForm toolbar={isDisabled ? null : <GroupEditToolbar />} {...props}>
       <TextInput disabled source="id" />
       <TextInput disabled={isDisabled} label="Название" source="name" />
       <ReferenceInput
