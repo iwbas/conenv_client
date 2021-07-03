@@ -102,12 +102,13 @@ const UserEditForm = (props) => {
       <TextInput disabled={isDisabled} source="surname" label="Фамилия" />
       <TextInput disabled={isDisabled} source="patronymic" label="Отчество" />
       <ReferenceInput
-        disabled={isDisabled}
+        // disabled={isDisabled}
+        disabled
         source="creatorId"
         reference="users"
         label="Ответственный"
       >
-        <SelectInput optionText="name" />
+        <SelectInput optionText="username" />
       </ReferenceInput>
       <ReferenceInput
         disabled
@@ -118,7 +119,7 @@ const UserEditForm = (props) => {
         <SelectInput optionText="name" />
       </ReferenceInput>
       <ReferenceArrayInput
-        disabled={isDisabled}
+        disabled={isDisabled || props.record.roleId === 2}
         reference="groups"
         source="groups"
         label="Группа"
@@ -183,6 +184,7 @@ export const UserCreate = (props) => {
           choices={choices}
           optionText="name"
           optionValue="id"
+          disabled
           initialValue={initialValue}
         />
         {userRole === "teacher" ? (

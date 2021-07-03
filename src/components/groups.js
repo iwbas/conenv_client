@@ -16,7 +16,6 @@ import {
 } from 'react-admin';
 
 export const GroupList = (props) => {
-  console.log(props);
   return (
     <List {...props}>
       <Datagrid rowClick="edit">
@@ -41,14 +40,16 @@ const GroupEditForm = (props) => {
   var auth = JSON.parse(localStorage.getItem('auth'));
   var userId = auth?.id;
   var userRole = auth?.role;
-  var isDisabled = userId !== props.record.ownerId && userRole !== 'admin';
+  var notOwner = userId !== props.record.ownerId;
+  var isDisabled = notOwner && userRole !== 'admin';
 
   return (
     <SimpleForm toolbar={isDisabled ? null : <GroupEditToolbar />} {...props}>
-      <TextInput disabled source="id" />
-      <TextInput disabled={isDisabled} label="Название" source="name" />
+      <TextInput disabled source="id"/>
+      <TextInput disabled={notOwner} label="Название" source="name" />
       <ReferenceInput
-        disabled={isDisabled}
+        // disabled={isDisabled}
+        disabled
         label="Владелец"
         source="ownerId"
         reference="users"
